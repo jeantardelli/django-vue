@@ -195,10 +195,10 @@
 
       // router
       const routes = [
-        { component: ArticleList, path: '/article/', },
-        { component: AuthorList,  path: '/author/',  },
-        { component: ArticleItem, path: '/article/:slug/', },
-        { component: AuthorItem,  path: '/author/:slug/',  },
+        { component: AlbumList, path: '/album/', },
+        { component: BandList,  path: '/band/',  },
+        { component: AlbumItem, path: '/album/:name/', },
+        { component: BandItem,  path: '/bandr/:name/',  },
       ]
 
       const router = new VueRouter({
@@ -207,10 +207,10 @@
       })
 
       // app
-      const myapp = new Vue({
+      const app = new Vue({
           router,
           store,
-      }).$mount('#myapp');
+      }).$mount('#app');
     </script>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

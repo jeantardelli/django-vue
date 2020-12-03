@@ -16,6 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+# don't forget to import the app's view!
+from app import views as app_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # paths for our app
+    path('', app_views.frontend),
+    path('band/', app_views.frontend),
+    path('album/', app_views.frontend),
+    path('band/<name:name>/', app_views.frontend),
+    path('album/<name:name>/', app_views.frontend),
 ]
