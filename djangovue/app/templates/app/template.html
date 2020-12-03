@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Django and Vue.js</title>
+    <style>
+      .router-link-active {
+        color: black;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="bg-white container">
+
+      <div class="jumbotron">
+        <h1 class="display-4">Django and Vue.js</h1>
+        <p class="lead">
+          Wouldn’t it be cool if you could prototype a custom web application that’s responsive (mobile ready), reactive (light-speed fast), with a full–featured back office site to manage the content; all of that in no time? Actually, with a mashup between Django’s and Vue.js, you can! 😁
+        </p>
+      </div>
+      
+      <!-- Content -->
+      <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <router-link
+                class="nav-link text-primary"
+                to="/band/"
+              >
+                Go to Bands
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link
+                class="nav-link text-primary"
+                to="/albums/"
+              >
+                Go to Albumns
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+        <br />
+        <router-view></router-view>
+      </div>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <script src="https://unpkg.com/vuex"></script>
+
+    <!-- Vue templates -->
+    <template id="band-list-template">
+      <div class="band-list">
+        <h2>Bands</h2>
+        <article-item
+          v-for="band in bands"
+          v-bind:key="band.name"
+          v-bind:name="band.name"
+          v-bind:area="band.area"
+          v-bind:genre="band.genre"
+	  v-bind:date_formed="band.date_formed"
+        ></band-item>
+      </div>
+    </template>
+    
+    <template id="album-list-template">
+      <div class="album-list">
+        <h2>Albums</h2>
+        <album-item
+          v-for="album in albums"
+          v-bind:key="album.name"
+          v-bind:name="album.name"
+          v-bind:label="album.label"
+	  v-bind:release="album.release"
+        ></album-item>
+      </div>
+    </template>
+    
+    <template id="band-item-template">
+      <div class="band-item">
+        <span v-if="$route.params.name">
+          <h3>
+            <router-link
+              v-bind:to="'/band/' + $route.params.name + '/'"
+              v-html="$store.getters.getBandByName($route.params.name)['name']"
+            ></router-link>
+          </h3>
+          <div v-html="$store.getters.getBandByName($route.params.name)['area']"></div>
+	  <div v-html="$store.getters.getBandByName($route.params.name)['genre']"></div>
+	  <div v-html="$store.getters.getBandByName($route.params.name)['date_formed']"></div>
+        </span>
+        <span v-else>
+          <h3>
+            <router-link
+              v-bind:to="'/band/' + name + '/'"
+              v-html="name"
+           ></router-link>
+         </h3>
+          <div v-html="area"></div>
+	  <div v-html="genre"></div>
+	  <div v-html="date_formed"></div>
+          <hr />
+        </span>
+      </div>
+    </template>
+    
+    <template id="album-item-template">
+      <div class="album-item">
+        <span v-if="$route.params.name">
+          <b>
+            <router-link v-bind:to="'/album/' + $route.params.name + '/'">
+              [[ $store.getters.getAlbumByName($route.params.name)['name'] ]]
+            </router-link>
+          </b>
+          ([[ $route.params.name ]])
+        </span>
+        <span v-else>
+          <b>
+            <router-link v-bind:to="'/album/' + name + '/'">
+              [[ name ]]
+            </router-link>
+          </b> ([[ slug ]])
+        </span>
+      </div>
+    </template>
+
+    <!-- Vue app -->
+    <script>
+      // store
+      const store = new Vuex.Store({
+        state: {
+            bands: [
+            {% for band in bands %}
+                {
+                  name: '{{ band.name }}',
+		  area: '{{ band.area }}',
+                  genre: '{{ band.genre }}',
+		  date_formed: '{{ band.date_formed }}',
+                },
+            {% endfor %}
+            ],
+            albums: [
+            {% for album in albums %}
+                {
+                  name: '{{ album.name | linebreaksbr }}',
+                  author: '{{ album.author }}',
+                  label: '{{ album.label }}',
+		  release: '{{ album.release }}',
+                },
+            {% endfor %}
+            ],
+        },
+        getters: {
+          getBandByName: (state) => (name) => {
+            return state.bands.find(bands => bands.name === name)
+          },
+          getAlbumByName: (state) => (name) => {
+            return state.albums.find(albums => albums.name === name)
+          },
+        }
+      })
+
+      // components
+      BandList = Vue.component('band-list', {
+        data: function () { return { bands: store.state.bands } },
+        template: '#band-list-template',
+      });      
+
+      AlbumList = Vue.component('album-list', {
+        data: function () { return { albums: store.state.albums } },
+        template: '#album-list-template',
+      });
+
+      BandItem = Vue.component('band-item', {
+        delimiters: ['[[', ']]'],
+        props: ['name', 'area', 'genre', 'date_formed'],
+        template: '#band-item-template',
+      });
+
+      AlbumItem = Vue.component('album-item', {
+        delimiters: ['[[', ']]'],
+        props: ['name', 'author', 'label', 'release'],
+        template: '#album-item-template',
+      });
+
+      // router
+      const routes = [
+        { component: ArticleList, path: '/article/', },
+        { component: AuthorList,  path: '/author/',  },
+        { component: ArticleItem, path: '/article/:slug/', },
+        { component: AuthorItem,  path: '/author/:slug/',  },
+      ]
+
+      const router = new VueRouter({
+        mode: 'history',
+        routes: routes,
+      })
+
+      // app
+      const myapp = new Vue({
+          router,
+          store,
+      }).$mount('#myapp');
+    </script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
+</html>
