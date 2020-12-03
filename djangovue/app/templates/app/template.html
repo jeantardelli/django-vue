@@ -41,7 +41,7 @@
             <li class="nav-item">
               <router-link
                 class="nav-link text-primary"
-                to="/albums/"
+                to="/album/"
               >
                 Go to Albumns
               </router-link>
@@ -62,13 +62,14 @@
     <template id="band-list-template">
       <div class="band-list">
         <h2>Bands</h2>
-        <article-item
+        <band-item
           v-for="band in bands"
-          v-bind:key="band.name"
+          v-bind:key="band.slug"
           v-bind:name="band.name"
           v-bind:area="band.area"
           v-bind:genre="band.genre"
 	  v-bind:date_formed="band.date_formed"
+	  v-bind:slug="band.slug"
         ></band-item>
       </div>
     </template>
@@ -78,31 +79,32 @@
         <h2>Albums</h2>
         <album-item
           v-for="album in albums"
-          v-bind:key="album.name"
+          v-bind:key="album.slug"
           v-bind:name="album.name"
           v-bind:label="album.label"
 	  v-bind:release="album.release"
+	  v-bind:slug="album.slug"
         ></album-item>
       </div>
     </template>
     
     <template id="band-item-template">
       <div class="band-item">
-        <span v-if="$route.params.name">
+        <span v-if="$route.params.slug">
           <h3>
             <router-link
-              v-bind:to="'/band/' + $route.params.name + '/'"
-              v-html="$store.getters.getBandByName($route.params.name)['name']"
+              v-bind:to="'/band/' + $route.params.slug + '/'"
+              v-html="$store.getters.getBandBySlug($route.params.slug)['name']"
             ></router-link>
           </h3>
-          <div v-html="$store.getters.getBandByName($route.params.name)['area']"></div>
-	  <div v-html="$store.getters.getBandByName($route.params.name)['genre']"></div>
-	  <div v-html="$store.getters.getBandByName($route.params.name)['date_formed']"></div>
+          <div v-html="$store.getters.getBandBySlug($route.params.slug)['area']"></div>
+	  <div v-html="$store.getters.getBandBySlug($route.params.slug)['genre']"></div>
+	  <div v-html="$store.getters.getBandBySlug($route.params.slug)['date_formed']"></div>
         </span>
         <span v-else>
           <h3>
             <router-link
-              v-bind:to="'/band/' + name + '/'"
+              v-bind:to="'/band/' + slug + '/'"
               v-html="name"
            ></router-link>
          </h3>
@@ -116,17 +118,17 @@
     
     <template id="album-item-template">
       <div class="album-item">
-        <span v-if="$route.params.name">
+        <span v-if="$route.params.slug">
           <b>
-            <router-link v-bind:to="'/album/' + $route.params.name + '/'">
-              [[ $store.getters.getAlbumByName($route.params.name)['name'] ]]
+            <router-link v-bind:to="'/album/' + $route.params.slug + '/'">
+              [[ $store.getters.getAlbumBySlug($route.params.slug)['name'] ]]
             </router-link>
           </b>
-          ([[ $route.params.name ]])
+          ([[ $route.params.slug ]])
         </span>
         <span v-else>
           <b>
-            <router-link v-bind:to="'/album/' + name + '/'">
+            <router-link v-bind:to="'/album/' + slug + '/'">
               [[ name ]]
             </router-link>
           </b> ([[ slug ]])
@@ -146,6 +148,7 @@
 		  area: '{{ band.area }}',
                   genre: '{{ band.genre }}',
 		  date_formed: '{{ band.date_formed }}',
+		  slug: '{{ band.slug }}',
                 },
             {% endfor %}
             ],
@@ -156,16 +159,17 @@
                   author: '{{ album.author }}',
                   label: '{{ album.label }}',
 		  release: '{{ album.release }}',
+		  slug: '{{ album.slug }}',
                 },
             {% endfor %}
             ],
         },
         getters: {
-          getBandByName: (state) => (name) => {
-            return state.bands.find(bands => bands.name === name)
+          getBandBySlug: (state) => (slug) => {
+            return state.bands.find(bands => bands.slug === slug)
           },
-          getAlbumByName: (state) => (name) => {
-            return state.albums.find(albums => albums.name === name)
+          getAlbumBySlug: (state) => (slug) => {
+            return state.albums.find(albums => albums.slug === slug)
           },
         }
       })
@@ -183,13 +187,13 @@
 
       BandItem = Vue.component('band-item', {
         delimiters: ['[[', ']]'],
-        props: ['name', 'area', 'genre', 'date_formed'],
+        props: ['name', 'area', 'genre', 'date_formed', 'slug'],
         template: '#band-item-template',
       });
 
       AlbumItem = Vue.component('album-item', {
         delimiters: ['[[', ']]'],
-        props: ['name', 'author', 'label', 'release'],
+        props: ['name', 'author', 'label', 'release', 'slug'],
         template: '#album-item-template',
       });
 
@@ -197,8 +201,8 @@
       const routes = [
         { component: AlbumList, path: '/album/', },
         { component: BandList,  path: '/band/',  },
-        { component: AlbumItem, path: '/album/:name/', },
-        { component: BandItem,  path: '/bandr/:name/',  },
+        { component: AlbumItem, path: '/album/:slug/', },
+        { component: BandItem,  path: '/bandr/:slug/',  },
       ]
 
       const router = new VueRouter({

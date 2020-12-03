@@ -7,6 +7,7 @@ class Band(models.Model):
     area = models.CharField(max_length=64)
     genre = models.CharField(max_length=64)
     date_formed = models.DateTimeField()
+    slug = models.CharField(default='', max_length=64)
 
     def __repr__(self):
         return '<Name %s>' % self.name
@@ -17,6 +18,7 @@ class Album(models.Model):
     author = models.ForeignKey('app.Band', on_delete=models.CASCADE)
     label = models.CharField(max_length=64)
     release = models.DateTimeField()
+    slug = models.CharField(default='', max_length=64)
 
     def __repr__(self):
         return '<Name %s>' % self.name

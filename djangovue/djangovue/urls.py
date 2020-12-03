@@ -26,6 +26,6 @@ urlpatterns = [
     path('', app_views.frontend),
     path('band/', app_views.frontend),
     path('album/', app_views.frontend),
-    path('band/<name:name>/', app_views.frontend),
-    path('album/<name:name>/', app_views.frontend),
+    path('band/<slug:slug>/', app_views.frontend),
+    path('album/<slug:slug>/', app_views.frontend),
 ]
